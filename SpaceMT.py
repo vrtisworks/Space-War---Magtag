@@ -479,6 +479,9 @@ def showShortScan():
   addOtherLine("".join(theRows))
 
 # Generalized getting a command button
+# theList = the complete list of commands
+# optional = an optional command that will show on every set of 4 buttons
+# page = the command that advances to the next set of items in theList
 def getButtonCommand(theList,optional,page):
   always=[]
   blankEntry="      "
