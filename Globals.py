@@ -52,5 +52,3 @@ class Status:
   moveDays=0
   otherLines=[]
 
-commands=["Short  ","Long   ","Move   ","Photon ","Phaser ","Shields","Tracker","Clear  ","       "]
-

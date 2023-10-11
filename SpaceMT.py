@@ -12,7 +12,6 @@
 # *) Game startup (get Sir/Madam, ship type)
 # *) Game ending
 # *) Invasion (swarm)
-# 8) 'destroying' starbases 
 # *) Enemy moving
 # **) After shooting at enemy.. if the enemy fires back it doesn't say so
 # **) Redo doMove so it isn't re-entrant
@@ -33,7 +32,8 @@
 #     into the correct area.
 # **) Ask if they want to see instructions at the beginning (read from file)
 # 25) Find/Destroy startbase (do we define shields, or just use 4/5 enemy in quadrant)
-# 26) Fix/Repair stuff.
+# 26) Damage/Fix/Repair stuff.
+# **) Button width in getMove needs to be adjusted.
 
 
 import time
@@ -54,7 +54,6 @@ magtag.display.show(None)
 import Globals
 galaxy=Globals.Galaxy
 status=Globals.Status
-commands=Globals.commands
 
 MAXENEMY=26
 MAXSTARBASES=3
@@ -70,7 +69,8 @@ SECTORDOCKED="@"
 # We need to be able to tell if a tracker is available or destroyed when we destroyed the enemy it was tracking
 TRACKERAVAIL=-1
 TRACKERDONE=-2
-
+#Length of the buttons - this is a 'generic' left format string (do BUTTONLEN % "word")
+BUTTONLEN="%-7s"
 
 # The screen is divided into 3 areas
 # 0) - The command display area at the bottom
@@ -94,6 +94,9 @@ mainGroup.append(otherGroup)
 ogIdx=2
 board.DISPLAY.show(mainGroup)
 
+# A 'generic' function to space pad the commands
+def spacePad(theWord):
+  return "%-7s" & theWord
 # Update the status rows/information
 def updateStatus():
   # How many I should have shot = (starDate-origDate)/daysPerEnemy
@@ -103,7 +106,7 @@ def updateStatus():
     if efficiency>200.0:
       efficiency=200.0
   else:
-    efficiency=200.0
+    efficiency=0.0
   print("daysPerEnemy,starDate,origDate",status.daysPerEnemy,status.starDate,status.origDate)
   theText="Status :"
   if galaxy.quadrants[galaxy.currentQ]&0o700 == 0:
@@ -203,23 +206,24 @@ def getCommand():
   # 1 button = 'More'
   # Wait for them to press a button to pick a command
   while True:
-    theAns=getButtonCommand(commands,"","More..")
+    theAns=getButtonCommand(["Short","Long","Move","Photon","Phaser","Shields","Tracker","Clear"]
+,"","More..")
     cmd=theAns[1]
-    if cmd=="Short  ":
+    if cmd=="Short":
       showShortScan()
-    if cmd=="Long   ":
+    if cmd=="Long":
       showLongScan()
-    if cmd=="Move   ":
+    if cmd=="Move":
       getMove()
-    if cmd=="Photon ":
+    if cmd=="Photon":
       doFire("photon")
-    if cmd=="Phaser ":
+    if cmd=="Phaser":
       doFire("phaser")
     if cmd=="Shields":
       setShields()
     if cmd=="Tracker":
       doTrackers()
-    if cmd=="Clear  ":
+    if cmd=="Clear":
       clearKnowns()
       
 # Let them clear out all the 'knowns' so they know what was scanned
@@ -479,41 +483,45 @@ def showShortScan():
   addOtherLine("".join(theRows))
 
 # Generalized getting a command button
-# theList = the complete list of commands
-# optional = an optional command that will show on every set of 4 buttons
+# theList = the complete list of buttons
+# always = an optional command that will show on every set of 4 buttons
 # page = the command that advances to the next set of items in theList
-def getButtonCommand(theList,optional,page):
-  always=[]
-  blankEntry="      "
-  if optional!="":
-    always.append(optional)
+#        (optional, and will always be 4th button)
+def getButtonCommand(theList,always,page):
+  activeCnt=3       # We start with this zero based
+  blankEntry=BUTTONLEN % " "
+  cmdList=[blankEntry,blankEntry,blankEntry,blankEntry]
   if page!="":
-    always.append(page)
-  activeCnt=4-len(always)
-  cmdList=activeCnt*["      "]
-  cmdList.extend(always)
+    pageIdx=activeCnt
+    cmdList[activeCnt]=BUTTONLEN % page
+    activeCnt-=1
+  else:
+    # So no button ever 'finds' page
+    pageIdx=-100
+  if always!="":
+    cmdList[activeCnt]=BUTTONLEN % always
+    activeCnt-=1
+  # Make activeCnt= length of the available 'theList' locations
+  activeCnt+=1
   beg=0
   cnt=len(theList)
   for i in range(activeCnt):
     if i+beg<cnt:
-      cmdList[i]=theList[i+beg]
+      cmdList[i]=BUTTONLEN % theList[i+beg]
     else:
       cmdList[i]=blankEntry
   cmdLabel.text=" ".join(cmdList)
+  # Display the commands and loop for a button press
   wait2refresh()
   picked=-1
-  try:
-    # If page=="" - this will fail to find it and raise the exception
-    pageIdx=cmdList.index(page)
-  except ValueError:
-    #NOTE: this will be one bigger than any button press number
-    pageIdx=len(cmdList)
+  # Turn off all the LEDs
   whichLED=0
   magtag.peripherals.neopixels.fill((0,0,0))
+  # And loop until we gt a button press
   while picked<0:
-    magtag.peripherals.neopixels[whichLED]=(0,0,0)
-    whichLED=(whichLED+1)&3
-    magtag.peripherals.neopixels[whichLED]=(0,255,0)
+    #magtag.peripherals.neopixels[whichLED]=(0,0,0)
+    #whichLED=(whichLED+1)&3
+    #magtag.peripherals.neopixels[whichLED]=(0,255,0)
     if magtag.peripherals.button_a_pressed:
       if cmdList[0]!=blankEntry:
         picked=0
@@ -537,14 +545,14 @@ def getButtonCommand(theList,optional,page):
         beg=0
       for i in range(activeCnt):
         if i+beg<cnt:
-          cmdList[i]=theList[i+beg]
+          cmdList[i]=BUTTONLEN % theList[i+beg]
         else:
           cmdList[i]=blankEntry
       print(cmdList)
       cmdLabel.text=" ".join(cmdList)
       wait2refresh()
-  magtag.peripherals.neopixels.fill((0,0,0))
-  return (picked+beg,cmdList[picked])        
+  #magtag.peripherals.neopixels.fill((0,0,0))
+  return (picked+beg,cmdList[picked].rstrip())        
 	
 # doMove - This is easier than actually getting the value
 def doMove(newQ,newS):
@@ -615,7 +623,7 @@ def doMove(newQ,newS):
 def getMove():
   digits=[galaxy.currentQ>>3,galaxy.currentQ&0o07,galaxy.currentS>>3,galaxy.currentS&0o07]
   digitIdx=0
-  cmdLabel.text="Warp  +1   -1   Accept"
+  cmdLabel.text=BUTTONLEN % "Warp"+BUTTONLEN % "+1"+BUTTONLEN % "-1"+BUTTONLEN % "Accept"
   while True:
     addOtherLine("{:} Current move to location is:\n{:1}{:1}:{:1}{:1}".format(status.theirTitle,digits[0],digits[1],digits[2],digits[3]))
     blinkIndex(digitIdx)
@@ -625,7 +633,7 @@ def getMove():
       # GO! - take care of moving them to the new location
       addOtherLine("Requesting warp factor.")
       addOtherLine("To location :{:1}{:1}:{:1}{:1}. {:}?".format(digits[0],digits[1],digits[2],digits[3],status.theirTitle))
-      cmdLabel.text="Go!   +1   -1   Cancel"
+      cmdLabel.text=BUTTONLEN % "DoIt!"+BUTTONLEN % "+1"+BUTTONLEN % "-1"+BUTTONLEN % "Cancel"
       theAns=getValue(status.theShip[1],0,status.theShip[1])
       if theAns[0]==3:
         addOtherLine("Move Canceled.")
@@ -643,7 +651,7 @@ def getMove():
       print ("Move-> Dist: {:} Energy: {:} Days: {:}".format (dist,status.moveEnergy,status.moveDays))
       if status.moveEnergy < status.energy:
         # NOTE: We start the 'other' comments here, since doMove might bounce to new coordinates
-        addOtherLine("Move to: {:02o}:{:02o} At Warp:{:}\nEngaging! {:}".format(newQ,newS,warp,status.theirTItle))
+        addOtherLine("Move to: {:02o}:{:02o} At Warp:{:}\nEngaging! {:}".format(newQ,newS,warp,status.theirTitle))
         doMove(newQ,newS)
       else:
         addOtherLine("Insufficient power to move that far.")
@@ -912,7 +920,7 @@ def daysOrDistance(dod, theValue, warp):
   # dist=days*10.0*warp/2.0
   # dist/days=10.0*warp/2.0
   # 1/days=(5.0*warp)/dist
-  # days = dist/warp*5.0
+  # days = dist/(warp*5.0)
   
 # The e-Ink needs to wait before a refresh
 def wait2refresh():
@@ -924,16 +932,16 @@ def wait2refresh():
   # Otherwise, we leave what ever was there in
   whichLED=0
   counter=0
-  magtag.peripherals.neopixels.fill((0,0,0))
-  magtag.peripherals.neopixels[whichLED]=(255,0,0)
+  #magtag.peripherals.neopixels.fill((0,0,0))
+  #magtag.peripherals.neopixels[whichLED]=(255,0,0)
   while board.DISPLAY.time_to_refresh>0.0:
     counter+=1
     if counter>1000:
-      magtag.peripherals.neopixels[whichLED]=(0,0,0)
+      #magtag.peripherals.neopixels[whichLED]=(0,0,0)
       whichLED=(whichLED+1)&3
-      magtag.peripherals.neopixels[whichLED]=(255,0,0)
+      #magtag.peripherals.neopixels[whichLED]=(255,0,0)
       counter=0
-  magtag.peripherals.neopixels[whichLED]=(0,0,0)
+  #magtag.peripherals.neopixels[whichLED]=(0,0,0)
   board.DISPLAY.refresh()
   
 # Calculate distance (in sectors) between two points
@@ -956,10 +964,10 @@ def getShip():
   theShips=(("Scout",15,2000,7,6,1.18),("Cruiser",8,3000,10,4,1.40),("Battleship",4,6000,20,5,1.96))
   ans=(0,"")
   while ans[1] != "Select":
-    addOtherLine("Which Ship would you like? {:}".format(status.theirTItle))
+    addOtherLine("Which Ship would you like? {:}".format(status.theirTitle))
     ans=getButtonCommand(["Scout","Cruiser","Battleship"],"","")
     thisShip=ans[0]
-    addOtherLine("Select this ship? {:}".format(status.theirTItle))
+    addOtherLine("Select this ship? {:}".format(status.theirTitle))
     addOtherLine("\
 Type    : {:>10}\n\
 Warp    : {:10}\n\
@@ -1117,7 +1125,7 @@ galaxy.currentS=random.randint(0,0O77)
 while galaxy.sectors[galaxy.currentS]!=SECTOREMPTY:
   galaxy.currentS=random.randint(0,0O77)
 # So we can test the invasion code
-status.actualInvasion=status.origDate+2.0
+status.actualInvasion=status.origDate+6.0
 # TESTING end
   
 # They always 'know' the quadrant where they start
@@ -1143,6 +1151,7 @@ gc.collect()
 print("Free memory:{}".format(gc.mem_free()))
 addOtherLine("Would you like to see instructions?")
 ans=getButtonCommand(["Yes","No"],"","")
+print(ans)
 if ans[1]=="Yes":
   fp=open("/Instructions.txt", "r")
   while True:
@@ -1160,8 +1169,8 @@ if ans[1]=="Yes":
     status.otherLines.append(aLine.strip())
   fp.close()
 
-status.theirTItle=getTitle()
-print(status.theirTItle)
+status.theirTitle=getTitle()
+print(status.theirTitle)
 # Ship type, speed (1/speed = starDates per quadrant), max energy, photons, trackers, energy/stardate
 status.theShip=getShip()
 print(status.theShip)
