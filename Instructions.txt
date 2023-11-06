@@ -1,0 +1,94 @@
+You are the commander of the Earth Starship 
+ESS Maiden. The galaxy is under attack by the 
+invading SNOHTYP's. Your mission obviously is 
+to detroy their ships and save the galaxy.
+
+You can select one of 3 ships for your mission:
+
+Battleship: Ponderous, heavily armed and lots 
+of power, but a bit slower than the others.
+Cruiser:    Quicker then the battleship, but 
+not as heavily armed and shielded.
+Scout:      Fast, lightly armed. Designed for 
+hit and run tactics
+
+The galaxy is mapped into an 8 by 8 grid of 
+64 quadrants. Each quadrant is subdivided into 
+an 8 by 8 grid of 64 sectors. These are numbered 
+0-7 down and 0-7 across. A specific sector can 
+therefore be located by a 4 digit number 
+(2 quadrant and 2 sector).For example 3265 would 
+in be in quadrant 32 (row 3, column 2 of the 
+long range scan). And 65 would be the sector 
+(row 6, column 5 of the short range scan.
+
+You start the game with a fully supplied starship.
+Eventually you will use up your torpedo load 
+and/or your energy supply.  You will need to dock 
+at a starbase and get your ship fully loaded.
+
+Unfortunately, due to a glitch in your computer,
+you don't know how many starbases you have, or 
+where they are located. So, finding these should 
+be high on your list of tasks. Note that a 
+starbase has huge shields, and if you are docked 
+with a starbase, you will be protected from enemy 
+fire.
+
+There is no limit on how many stardates you have 
+to finish the game.  Your efficiency rating it 
+partially dependent upon how many stardates it 
+takes you to defeat all the enemy. 
+Galaxy intelligence has learned that the enemy is 
+planning a second, even bigger swarm. GI has an 
+estimated stardate for this, but it is only an 
+estimate, so they suggest you do not cut it too 
+close. You can still survive the swarm, but there 
+will be a LOT of enemy gunning for you.
+
+The enemy moves at approximately warp 4. So, step 
+lively when you move.  Some enemy will run away, 
+some will try to follow you and overwelm your 
+shields.
+
+Black holes are abnormalities in space-time. If 
+your ship lands on one of these, you will 
+immediately be transported to a different 
+location in the galaxy. Exactly where is 
+something the scientists haven't figured out 
+how to predict. Black holes can only be 
+detected by a short range scan.
+
+You have two types of weapons.
+A photon torpedo is a powerful weapon. If it hits an 
+enemy, it will destroy them.  Unfortunately, your ship 
+only has a limited number available and you will need 
+to dock with a starbase to replenish your supply.
+A phaser uses your energy supply to project a beam at 
+the enemy. If the beam hits with enough energy, it will 
+destroy the enemy. Otherwise, it will simply decrease 
+their shields. You may need to fire more than once at an 
+enemy to overcome their shields.
+
+You have the following command available:
+Short:  Perform a short range scan showing the contents
+of the current quadrant
+Long:   Perform a long range showing the quadrants around
+your current quadrant, and the results of previous long 
+range scans. NOTE, the previous long range scans are not 
+updated automatically.  It is possible that enemy ships may 
+have moved in or out since you scanned the quadrant.
+Move:   Move to a new quadrant:sector
+Photon: Fire a photon torpedo at an enemy.  Note that photon
+torpedoes are NOT smart enough to dodge a star or a black hole.
+Phaser: Fire a phaser at an enemy.
+Shields:Set power to your shields (power to the shields is
+taken from your total power available).
+Tracker:Launch a tracker to track the movement of an 
+enemy ship. The tracker will report the location of the 
+enemy ship no matter where you are in the galaxy.
+Clear:  Clear the results of all your previous long range
+scans. Useful when you have scanned all the galaxy and some 
+enemy ships have moved (or the enemy has swarmed and the 
+previous enemy locations have changed.)
+        
