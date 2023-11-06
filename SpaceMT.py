@@ -1110,23 +1110,25 @@ for idx in range(len(galaxy.sectors)):
   if galaxy.sectors[idx]==SECTORSB:
     galaxy.currentS=idx
     break
-# TESTING - find us a quadrant with enemy so we can test firing
-for q in range(64):
-  if galaxy.quadrants[q]&0o700 > 0o100:
-    galaxy.currentQ=q
-    print ("More than 1",galaxy.currentQ,galaxy.quadrants[q]&0o700)
-    break
-  elif galaxy.quadrants[q]&0o700 > 0:
-    galaxy.currentQ=q
-    print ("At least 1",galaxy.currentQ)
-# Find an empty sector to start off in (since we are going to be docked)
-fillSectors(False)
-galaxy.currentS=random.randint(0,0O77)
-while galaxy.sectors[galaxy.currentS]!=SECTOREMPTY:
+# NOTE: Change this to if True: to include some setup to make testing quicker
+if False:
+  # TESTING - find us a quadrant with enemy so we can test firing
+  for q in range(64):
+    if galaxy.quadrants[q]&0o700 > 0o100:
+      galaxy.currentQ=q
+      print ("More than 1",galaxy.currentQ,galaxy.quadrants[q]&0o700)
+      break
+    elif galaxy.quadrants[q]&0o700 > 0:
+      galaxy.currentQ=q
+      print ("At least 1",galaxy.currentQ)
+  # Find an empty sector to start off in (since we are going to be docked)
+  fillSectors(False)
   galaxy.currentS=random.randint(0,0O77)
-# So we can test the invasion code
-status.actualInvasion=status.origDate+6.0
-# TESTING end
+  while galaxy.sectors[galaxy.currentS]!=SECTOREMPTY:
+    galaxy.currentS=random.randint(0,0O77)
+  # So we can test the invasion code
+  status.actualInvasion=status.origDate+6.0
+  # TESTING end
   
 # They always 'know' the quadrant where they start
 galaxy.knowns=["   "]*64
